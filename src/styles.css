@@ -57,6 +57,7 @@ button {
   --bg-shift: calc(var(--scroll-depth) * -72px);
   --bg-scale: calc(1 + var(--scroll-depth) * 0.08);
   --bg-rotate: calc(var(--scroll-depth) * -4deg);
+  touch-action: pan-y;
 }
 
 .character-backdrop {
@@ -77,6 +78,7 @@ button {
     opacity 120ms linear,
     transform 80ms linear;
   filter: saturate(0.96) contrast(1.02);
+  will-change: opacity, transform;
   mask-image:
     linear-gradient(90deg, transparent 0%, #000 18%, #000 78%, transparent 100%),
     linear-gradient(180deg, transparent 0%, #000 12%, #000 78%, transparent 100%);
@@ -109,6 +111,7 @@ button {
   overflow: hidden;
   scroll-snap-align: start;
   scroll-snap-stop: always;
+  touch-action: pan-y;
 }
 
 .countdown-hero::before {
@@ -173,6 +176,7 @@ button {
   transition:
     opacity 120ms linear,
     transform 120ms linear;
+  will-change: opacity, transform;
 }
 
 .kicker,
@@ -307,6 +311,7 @@ h1 span {
   transition:
     opacity 120ms linear,
     transform 160ms ease-out;
+  will-change: opacity, transform;
 }
 
 .foreground-portrait::before {
@@ -332,6 +337,7 @@ h1 span {
     scale(calc(1 + var(--scroll-depth) * 0.035));
   transform-origin: 52% 42%;
   filter: drop-shadow(0 34px 80px rgba(0, 0, 0, 0.42));
+  will-change: transform;
 }
 
 .portrait-tag {
@@ -405,11 +411,13 @@ h1 span {
   backdrop-filter: blur(12px);
   scroll-snap-align: start;
   scroll-snap-stop: always;
+  overscroll-behavior-y: contain;
   opacity: calc(0.2 + var(--map-enter) * 0.8);
   transform: translate3d(0, calc((1 - var(--map-enter)) * 36px), 0);
   transition:
     opacity 120ms linear,
     transform 120ms linear;
+  will-change: opacity, transform;
 }
 
 .chapter-head {
@@ -853,6 +861,8 @@ h1 span {
     right: -38vw;
     width: min(112vw, 560px);
     opacity: 0.11;
+    transform: none;
+    transition: opacity 160ms ease;
   }
 
   .countdown-hero {
@@ -879,6 +889,7 @@ h1 span {
     min-height: 460px;
     opacity: 0.56;
     pointer-events: none;
+    transition: opacity 160ms ease;
   }
 
   .foreground-portrait img {

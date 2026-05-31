@@ -27,6 +27,8 @@ const activePanel = ref(0);
 let ticker: number | undefined;
 let scrollFrame = 0;
 let touchStartY = 0;
+let orientationFrame = 0;
+let pendingOrientation: DeviceOrientationEvent | null = null;
 let panelLock = false;
 
 const filters: Array<{ key: FilterKey; label: string }> = [
@@ -79,7 +81,9 @@ function selectLocation(id: string) {
 }
 
 function goToPanel(index: number) {
-  const targetIndex = Math.max(0, Math.min(1, index));
+  if (index < 0 || index > 1) return;
+
+  const targetIndex = index;
   const target = targetIndex === 0 ? heroSection.value : mapSection.value;
   if (!target || panelLock) return;
 
@@ -93,6 +97,10 @@ function goToPanel(index: number) {
 
 function onWheel(event: WheelEvent) {
   if (Math.abs(event.deltaY) < 12) return;
+  if (event.deltaY > 0 && activePanel.value === 1) return;
+  if (event.deltaY < 0 && activePanel.value === 1 && window.scrollY > window.innerHeight + 24) return;
+  if (event.deltaY < 0 && activePanel.value === 0) return;
+
   event.preventDefault();
   goToPanel(event.deltaY > 0 ? activePanel.value + 1 : activePanel.value - 1);
 }
@@ -105,7 +113,15 @@ function onTouchEnd(event: TouchEvent) {
   const endY = event.changedTouches[0]?.clientY ?? touchStartY;
   const delta = touchStartY - endY;
   if (Math.abs(delta) < 42) return;
-  goToPanel(delta > 0 ? activePanel.value + 1 : activePanel.value - 1);
+
+  if (activePanel.value === 0 && delta > 0) {
+    goToPanel(1);
+    return;
+  }
+
+  if (activePanel.value === 1 && delta < 0 && window.scrollY <= window.innerHeight + 24) {
+    goToPanel(0);
+  }
 }
 
 function onKeyDown(event: KeyboardEvent) {
@@ -131,23 +147,25 @@ function onHeroPointerMove(event: PointerEvent) {
   updateTilt(event.clientX, event.clientY, event.currentTarget as HTMLElement);
 }
 
-function onHeroTouchMove(event: TouchEvent) {
-  const touch = event.touches[0];
-  if (!touch) return;
-  updateTilt(touch.clientX, touch.clientY, event.currentTarget as HTMLElement);
-}
-
 function resetTilt() {
   heroTilt.value = { x: 0, y: 0 };
 }
 
 function onDeviceOrientation(event: DeviceOrientationEvent) {
-  const gamma = event.gamma ?? 0;
-  const beta = event.beta ?? 0;
-  heroTilt.value = {
-    x: Math.max(-10, Math.min(10, gamma * 0.45)),
-    y: Math.max(-8, Math.min(8, (beta - 45) * -0.18))
-  };
+  if (activePanel.value !== 0) return;
+  pendingOrientation = event;
+  if (orientationFrame) return;
+
+  orientationFrame = window.requestAnimationFrame(() => {
+    const gamma = pendingOrientation?.gamma ?? 0;
+    const beta = pendingOrientation?.beta ?? 0;
+    heroTilt.value = {
+      x: Math.max(-10, Math.min(10, gamma * 0.45)),
+      y: Math.max(-8, Math.min(8, (beta - 45) * -0.18))
+    };
+    pendingOrientation = null;
+    orientationFrame = 0;
+  });
 }
 
 function updateScrollDepth() {
@@ -200,6 +218,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (ticker) window.clearInterval(ticker);
   if (scrollFrame) window.cancelAnimationFrame(scrollFrame);
+  if (orientationFrame) window.cancelAnimationFrame(orientationFrame);
   window.removeEventListener("scroll", onScroll);
   window.removeEventListener("wheel", onWheel);
   window.removeEventListener("touchstart", onTouchStart);
@@ -228,7 +247,6 @@ onBeforeUnmount(() => {
       class="countdown-hero"
       @pointermove="onHeroPointerMove"
       @pointerleave="resetTilt"
-      @touchmove.passive="onHeroTouchMove"
       @touchend="resetTilt"
     >
       <div class="hero-grid">
