@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.idea/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+/弦卷心_10周年.webp

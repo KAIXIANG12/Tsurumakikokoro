@@ -1,0 +1,21 @@
+{
+  "name": "kokoro-birthday",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@lucide/vue": "^1.17.0",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vueuse/core": "^13.3.0",
+    "gsap": "^3.13.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vue": "^3.5.16",
+    "vue-tsc": "^2.2.10"
+  }
+}
