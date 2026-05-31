@@ -12,8 +12,8 @@ import {
 
 type FilterKey = "all" | SupportCategory;
 
-const backgroundPortrait = "/kokoro-10th.webp";
-const foregroundPortrait = "/kokoro-10th.webp";
+const backgroundPortrait = `${import.meta.env.BASE_URL}kokoro-10th.webp`;
+const foregroundPortrait = `${import.meta.env.BASE_URL}kokoro-10th.webp`;
 const birthdayAt = new Date("2026-08-08T00:00:00+08:00").getTime();
 const now = ref(Date.now());
 const activeFilter = ref<FilterKey>("all");
